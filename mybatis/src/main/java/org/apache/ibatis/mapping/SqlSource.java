@@ -22,7 +22,11 @@ package org.apache.ibatis.mapping;
  * @author Clinton Begin
  */
 public interface SqlSource {
-
+  /**
+   * 会根据映射文件或注解描述的SQL，以及传入的参数，返回可执行的SQL。
+   * @param parameterObject
+   * @return
+   */
   BoundSql getBoundSql(Object parameterObject);
 
 }

@@ -57,21 +57,30 @@ public class XMLIncludeTransformer {
    *          Include node in DOM tree
    * @param variablesContext
    *          Current context for static variables with values
+   * @param included 是否是include节点或属于子节点
    */
   private void applyIncludes(Node source, final Properties variablesContext, boolean included) {
     if ("include".equals(source.getNodeName())) {
+      // 处理include节点
+      // 查找refield属性指向的<sql>节点，返回的是其深克隆的Node对象
       Node toInclude = findSqlFragment(getStringAttribute(source, "refid"), variablesContext);
+      // 解析include节点下的<property>子节点，将得到的键值添加到variablesContext中，并形成新的Properties对象返回。
       Properties toIncludeContext = getVariablesContext(source, variablesContext);
+      // 递归处理<include>节点，在sql节点中可能会使用<include>引用了其他的sql
       applyIncludes(toInclude, toIncludeContext, true);
       if (toInclude.getOwnerDocument() != source.getOwnerDocument()) {
         toInclude = source.getOwnerDocument().importNode(toInclude, true);
       }
+      // 将<include>节点替换成sql节点
       source.getParentNode().replaceChild(toInclude, source);
       while (toInclude.hasChildNodes()) {
+        // 将<sql>节点的子节点添加到<sql>节点的前面
         toInclude.getParentNode().insertBefore(toInclude.getFirstChild(), toInclude);
       }
+      // 删除<sql>节点
       toInclude.getParentNode().removeChild(toInclude);
     } else if (source.getNodeType() == Node.ELEMENT_NODE) {
+      // 如果该节点是include或子节点并且variablesContext不为空则给其属性进行占位符替换(configuration.var与include中获取)
       if (included && !variablesContext.isEmpty()) {
         // replace variables in attribute values
         NamedNodeMap attributes = source.getAttributes();
@@ -80,12 +89,16 @@ public class XMLIncludeTransformer {
           attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
         }
       }
+      // 接着遍历当前sql语句节点的子节点
       NodeList children = source.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
+        Node item = children.item(i);
         applyIncludes(children.item(i), variablesContext, included);
       }
     } else if (included && (source.getNodeType() == Node.TEXT_NODE || source.getNodeType() == Node.CDATA_SECTION_NODE)
         && !variablesContext.isEmpty()) {
+      // 如果当前是内部节点，比如是sql节点的子节点 文本节点
+      // 替换占位符
       // replace variables in text node
       source.setNodeValue(PropertyParser.parse(source.getNodeValue(), variablesContext));
     }

@@ -41,6 +41,7 @@ public class TextSqlNode implements SqlNode {
   public boolean isDynamic() {
     DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
     GenericTokenParser parser = createParser(checker);
+    // 解析，匹配到占位符就会执行handler，设置isDynamic属性
     parser.parse(text);
     return checker.isDynamic();
   }
@@ -87,6 +88,9 @@ public class TextSqlNode implements SqlNode {
     }
   }
 
+  /**
+   * 实现TokenHandler的内部的占位符标记解析处理器
+   */
   private static class DynamicCheckerTokenParser implements TokenHandler {
 
     private boolean isDynamic;
