@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cgq.mapper.BlogMapper">
-    <resultMap id="asd" type="">
-        <constructor>
-            <arg na
-        </constructor>
-    </resultMap>
+
+    <sql id="two">
+
+    </sql>
+    <sql id="one">
+        count(*) <include refid="two"></include>
+    </sql>
+
     <select id="count" resultType="int">
-        select count(*) from time_zone_name
+        select <include refid="one"/> from time_zone_name
     </select>
 </mapper>

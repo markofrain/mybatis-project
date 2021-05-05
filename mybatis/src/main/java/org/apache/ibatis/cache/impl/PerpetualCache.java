@@ -25,9 +25,13 @@ import org.apache.ibatis.cache.CacheException;
  * @author Clinton Begin
  */
 public class PerpetualCache implements Cache {
-
+  /**
+   * Cache对象的唯一id标识
+   */
   private final String id;
-
+  /**
+   * 用于记录缓存项的Map对象
+   */
   private final Map<Object, Object> cache = new HashMap<>();
 
   public PerpetualCache(String id) {
